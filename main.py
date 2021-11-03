@@ -89,7 +89,7 @@ async def main():
     await db.commit()
     asyncio.create_task(db.close())
 
-    app.run(host='0.0.0.0',port=5000,debug=True)
+    app.run(host='0.0.0.0',port=5000,debug=False)
 
 app = Flask(__name__)
 
