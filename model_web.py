@@ -4,8 +4,6 @@ import sqlite3
 import multiprocessing
 import random
 
-from main import model_main
-
 app = Flask(__name__)
 processes=[]
 
