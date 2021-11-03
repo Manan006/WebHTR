@@ -9,3 +9,4 @@ aioflask
 flask
 aiosqlite
 aiohttp
+nest_asyncio

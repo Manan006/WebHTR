@@ -9,6 +9,8 @@ from flask.wrappers import Response
 import multiprocessing
 import model_web
 import time
+import nest_asyncio
+nest_asyncio.apply()
 
 
 abspath = os.path.abspath(os.getcwd())
@@ -121,7 +123,7 @@ if __name__=="__main__":
     multiprocessing.Process(target=model_web.main,args=[]).start()
     
     asyncio.run(main())
-
+    
     while True:
         time.sleep(1)
 
