@@ -6,3 +6,6 @@ notes/
 *.pyc
 .idea/
 dump/
+img/*
+img.db
+env/*

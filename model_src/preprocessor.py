@@ -4,7 +4,7 @@ from typing import Tuple
 import cv2
 import numpy as np
 
-from dataloader_iam import Batch
+from model_src.dataloader_iam import Batch
 
 
 class Preprocessor:
@@ -177,8 +177,8 @@ class Preprocessor:
 
 def main():
     import matplotlib.pyplot as plt
-
-    img = cv2.imread('../data/test.png', cv2.IMREAD_GRAYSCALE)
+    path = os.path.abspath(os.getcwd())
+    img = cv2.imread(path + '/data/test.png', cv2.IMREAD_GRAYSCALE)
     img_aug = Preprocessor((256, 32), data_augmentation=True).process_img(img)
     plt.subplot(121)
     plt.imshow(img, cmap='gray')

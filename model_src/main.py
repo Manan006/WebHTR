@@ -5,18 +5,17 @@ from typing import Tuple, List
 import cv2
 import editdistance
 from path import Path
+import os
+from model_src.dataloader_iam import DataLoaderIAM, Batch
+from model_src.model import Model, DecoderType
+from model_src.preprocessor import Preprocessor
 
-from dataloader_iam import DataLoaderIAM, Batch
-from model import Model, DecoderType
-from preprocessor import Preprocessor
-
-
+path = os.path.abspath(os.getcwd())
 class FilePaths:
     """Filenames and paths to data."""
-    fn_char_list = '../model/charList.txt'
-    fn_summary = '../model/summary.json'
-    fn_corpus = '../data/corpus.txt'
-
+    fn_char_list = path + '/model/charList.txt'
+    fn_summary = path + '/model/summary.json'
+    fn_corpus = path + '/data/corpus.txt'
 
 def get_img_height() -> int:
     """Fixed height for NN."""
@@ -129,39 +128,40 @@ def infer(model: Model, fn_img: Path) -> None:
 
     batch = Batch([img], None, 1)
     recognized, probability = model.infer_batch(batch, True)
-    print(f'Recognized: "{recognized[0]}"')
-    print(f'Probability: {probability[0]}')
+    # print(f'Recognized: "{recognized[0]}"')
+    # print(f'Probability: {probability[0]}')
+    return {'Recognized': recognized[0],
+    'Probability': probability[0]*100}
 
 
-def main():
+def main(args):
     """Main function."""
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--mode', choices=['train', 'validate', 'infer'], default='infer')
-    parser.add_argument('--decoder', choices=['bestpath', 'beamsearch', 'wordbeamsearch'], default='bestpath')
-    parser.add_argument('--batch_size', help='Batch size.', type=int, default=100)
-    parser.add_argument('--data_dir', help='Directory containing IAM dataset.', type=Path, required=False)
-    parser.add_argument('--fast', help='Load samples from LMDB.', action='store_true')
-    parser.add_argument('--line_mode', help='Train to read text lines instead of single words.', action='store_true')
-    parser.add_argument('--img_file', help='Image used for inference.', type=Path, default='../data/word.png')
-    parser.add_argument('--early_stopping', help='Early stopping epochs.', type=int, default=25)
-    parser.add_argument('--dump', help='Dump output of NN to CSV file(s).', action='store_true')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--mode', choices=['train', 'validate', 'infer'], default='infer')
+    # parser.add_argument('--decoder', choices=['bestpath', 'beamsearch', 'wordbeamsearch'], default='bestpath')
+    # parser.add_argument('--batch_size', help='Batch size.', type=int, default=100)
+    # parser.add_argument('--data_dir', help='Directory containing IAM dataset.', type=Path, required=False)
+    # parser.add_argument('--fast', help='Load samples from LMDB.', action='store_true')
+    # parser.add_argument('--line_mode', help='Train to read text lines instead of single words.', action='store_true')
+    # parser.add_argument('--img_file', help='Image used for inference.', type=Path, default=path + '/data/word.png')
+    # parser.add_argument('--early_stopping', help='Early stopping epochs.', type=int, default=25)
+    # parser.add_argument('--dump', help='Dump output of NN to CSV file(s).', action='store_true')
+    # args = parser.parse_args()
 
     # set chosen CTC decoder
     decoder_mapping = {'bestpath': DecoderType.BestPath,
                        'beamsearch': DecoderType.BeamSearch,
                        'wordbeamsearch': DecoderType.WordBeamSearch}
-    decoder_type = decoder_mapping[args.decoder]
+    decoder_type = decoder_mapping[args.get("decoder")]
 
     # train or validate on IAM dataset
-    if args.mode in ['train', 'validate']:
+    if args.get("mode") in ['train', 'validate']:
         # load training data, create TF model
-        loader = DataLoaderIAM(args.data_dir, args.batch_size, fast=args.fast)
+        loader = DataLoaderIAM(args.data_dir, args.batch_size, fast=args.get("fast"))
         char_list = loader.char_list
 
         # when in line mode, take care to have a whitespace in the char list
-        if args.line_mode and ' ' not in char_list:
+        if args.get("line_mode") and ' ' not in char_list:
             char_list = [' '] + char_list
 
         # save characters of model for inference mode
@@ -171,18 +171,28 @@ def main():
         open(FilePaths.fn_corpus, 'w').write(' '.join(loader.train_words + loader.validation_words))
 
         # execute training or validation
-        if args.mode == 'train':
+        if args.get("mode") == 'train':
             model = Model(char_list, decoder_type)
-            train(model, loader, line_mode=args.line_mode, early_stopping=args.early_stopping)
-        elif args.mode == 'validate':
+            train(model, loader, line_mode=args.get("line_mode"), early_stopping=args.get("early_stopping"))
+        elif args.get("mode") == 'validate':
             model = Model(char_list, decoder_type, must_restore=True)
-            validate(model, loader, args.line_mode)
+            validate(model, loader, args.get("line_mode"))
 
     # infer text on test image
-    elif args.mode == 'infer':
-        model = Model(list(open(FilePaths.fn_char_list).read()), decoder_type, must_restore=True, dump=args.dump)
-        infer(model, args.img_file)
+    elif args.get("mode") == 'infer':
+        model = Model(list(open(FilePaths.fn_char_list).read()), decoder_type, must_restore=True, dump=args.get("dump"))
+        return infer(model, args.get("img_file"))
 
 
 if __name__ == '__main__':
+    args = {
+    "mode":"infer",
+    "decoder":"bestpath",
+    "batch_size":100,
+    "fast":False,
+    "line_mode":False,
+    "img_file":os.path.join(path,"data/word.png"),
+    "early_stopping":25,
+    "dump":False
+}
     main()

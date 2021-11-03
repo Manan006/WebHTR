@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 import tensorflow as tf
 
-from dataloader_iam import Batch
+from model_src.dataloader_iam import Batch
 
 # Disable eager mode
 tf.compat.v1.disable_eager_execution()
@@ -132,10 +132,11 @@ class Model:
                                                          beam_width=50)
         # word beam search decoding (see https://github.com/githubharald/CTCWordBeamSearch)
         elif self.decoder_type == DecoderType.WordBeamSearch:
+            path = os.path.abspath(os.getcwd())
             # prepare information about language (dictionary, characters in dataset, characters forming words)
             chars = ''.join(self.char_list)
-            word_chars = open('../model/wordCharList.txt').read().splitlines()[0]
-            corpus = open('../data/corpus.txt').read()
+            word_chars = open(path + '/model/wordCharList.txt').read().splitlines()[0]
+            corpus = open(path + '/data/corpus.txt').read()
 
             # decode using the "Words" mode of word beam search
             from word_beam_search import WordBeamSearch
@@ -153,7 +154,8 @@ class Model:
         sess = tf.compat.v1.Session()  # TF session
 
         saver = tf.compat.v1.train.Saver(max_to_keep=1)  # saver saves model to file
-        model_dir = '../model/'
+        path = os.path.abspath(os.getcwd())
+        model_dir = path + '/model/'
         latest_snapshot = tf.train.latest_checkpoint(model_dir)  # is there a saved model?
 
         # if model must be restored (for inference), there must be a snapshot
@@ -229,7 +231,8 @@ class Model:
     @staticmethod
     def dump_nn_output(rnn_output: np.ndarray) -> None:
         """Dump the output of the NN to CSV file(s)."""
-        dump_dir = '../dump/'
+        path = os.path.abspath(os.getcwd())
+        dump_dir = path + '/dump/'
         if not os.path.isdir(dump_dir):
             os.mkdir(dump_dir)
 
@@ -301,6 +304,7 @@ class Model:
         return texts, probs
 
     def save(self) -> None:
+        path = os.path.abspath(os.getcwd())
         """Save model to file."""
         self.snap_ID += 1
-        self.saver.save(self.sess, '../model/snapshot', global_step=self.snap_ID)
+        self.saver.save(self.sess, path + '/model/snapshot', global_step=self.snap_ID)
