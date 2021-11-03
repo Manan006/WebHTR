@@ -4,7 +4,7 @@
 
 How to install -
 
-`git clone uwu`
+`git clone https://github.com/Manan006/WebHTR.git`
 
 install the dependencies
 
