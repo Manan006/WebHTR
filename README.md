@@ -6,9 +6,9 @@ How to install -
 
 `git clone https://github.com/Manan006/WebHTR.git`
 
-install the dependencies
+cd into it and install the dependencies
 
-`pip install -r requirements.txt`
+`cd WebHTR;pip install -r requirements.txt`
 
 then run it
 
