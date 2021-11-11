@@ -8,7 +8,7 @@ How to install -
 
 cd into it and install the dependencies
 
-`cd WebHTR;pip install -r requirements.txt`
+`cd WebHTR;mkdir img;pip install -r requirements.txt`
 
 then run it
 

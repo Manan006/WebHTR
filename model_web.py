@@ -35,7 +35,7 @@ def model_main(args):
     db.close()
 
 def main():
-    app.run(host='0.0.0.0',debug=False,port=6000)
+    app.run(host='0.0.0.0',debug=False,port=4201)
 
 if __name__=="__main__":
     main()
