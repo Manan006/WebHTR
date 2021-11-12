@@ -32,7 +32,7 @@ async def model_main(args):
     randint=random.randint(-2147483647,2147483647)
     args["randint"]=randint
     async with aiohttp.ClientSession() as session:
-        model_web_url = 'http://0.0.0.0:6000/queue_img'
+        model_web_url = 'http://0.0.0.0:4201/queue_img'
         async with session.post(model_web_url,data=args) as resp:
             return await resp.text()
             
