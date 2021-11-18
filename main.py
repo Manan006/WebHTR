@@ -20,7 +20,7 @@ args = {
     "decoder":"bestpath",
     "batch_size":100,
     "fast":True,
-    "line_mode":False,
+    "line_mode":True,
     "img_file":os.path.join(abspath,"data/word.png"),
     "early_stopping":25,
     "dump":False
